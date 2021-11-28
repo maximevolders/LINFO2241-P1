@@ -1,13 +1,14 @@
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
+//  Provides the classes and interfaces for cryptographic operations.
+import javax.crypto.BadPaddingException; // This exception is thrown when a particular padding mechanism is expected for the input data but the data is not padded properly.
+import javax.crypto.IllegalBlockSizeException; // This exception is thrown when the length of data provided to a block cipher is incorrect, i.e., does not match the block size of the cipher.
+import javax.crypto.NoSuchPaddingException; // This exception is thrown when a particular padding mechanism is requested but is not available in the environment.
+import javax.crypto.SecretKey; // This class represents a factory for secret keys.
 import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
+import java.net.ServerSocket; // A server socket waits for requests to come in over the network. It performs some operation based on that request, and then possibly returns a result to the requester. 
+import java.net.Socket; // his class implements client sockets (also called just "sockets"). A socket is an endpoint for communication between two machines. 
+import java.security.InvalidKeyException; // This is the exception for invalid Keys (invalid encoding, wrong length, uninitialized, etc).
+import java.security.NoSuchAlgorithmException; // This exception is thrown when a particular cryptographic algorithm is requested but is not available in the environment.
+import java.security.spec.InvalidKeySpecException; //This is the exception for invalid key specifications.
 
 public class ServerMain {
 
@@ -39,6 +40,11 @@ public class ServerMain {
         System.out.println("Connection from: " + socket);
 
         // Stream to read request from socket
+        //On devrait peut etre faire une fonction de tout ça, et le mettre
+        //Dans une boucle while pour pouvoir recevoir x fichiers, toujours
+        //Avec le même mdp. Donc mettre le bon pw dans un final?
+
+        //Faire une fonction c'est peut etre pas nécessaire sauf pour le mot de passe
         InputStream inputStream = socket.getInputStream();
         DataInputStream dataInputStream = new DataInputStream(inputStream);
         // Stream to write response to socket
@@ -90,6 +96,12 @@ public class ServerMain {
         inDecrypted.close();
         outFile.close();
         socket.close();
+        ss.close(); // ligne manquante dès le début. 
 
+    }
+
+    public String guessPw(){
+        String pw = "test";
+        return pw;
     }
 }
