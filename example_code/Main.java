@@ -42,64 +42,82 @@ public class Main {
         try{
             String password = "test";
             SecretKey keyGenerated = CryptoUtils.getKeyFromPassword(password);
+            // Faire une liste de files pour en envoyer plusieurs, et terminer par un élément null? pour terminer l'échange
+            int  numberOfFiles = 1;
+            //plus 1 en dessous pour que le dernier envoie soit un null?
+            File[] inputFiles = new File[numberOfFiles+1];
+            for (int i = 0; i<numberOfFiles; i++){
+                //Modifier nom file dans les trois for ci-dessous
+                inputFiles[i] = new File("test_file.pdf");
+            }
 
-            File inputFile = new File("test_file.pdf");
-            File encryptedFile = new File("test_file-encrypted-client.pdf");
-            File decryptedClient = new File("test_file-decrypted-client.pdf");
+            File[] encryptedFiles = new File[numberOfFiles+1];
+            for (int i = 0; i<numberOfFiles; i++){
+                inputFiles[i] = new File("test_file-encrypted-client.pdf");
+            }
 
-            // This is an example to help you create your request
-            CryptoUtils.encryptFile(keyGenerated, inputFile, encryptedFile);
-            System.out.println("Encrypted file length: " + encryptedFile.length());
-
+            File[] decryptedClients = new File[numberOfFiles+1];
+            for (int i = 0; i<numberOfFiles; i++){
+                inputFiles[i] = new File("test_file-decrypted-client.pdf");
+            }
+            
+            //Modification. Le encrypt file est fait après la création du socket pour pouvoir looper dessus.
 
             // Creating socket to connect to server (in this example it runs on the localhost on port 3333)
             Socket socket = new Socket("localhost", 3333);
+            // Le for commence après ce commentaire en français, on est obligé de looper
+            // sur les outputstream et inputstream.
 
-            // For any I/O operations, a stream is needed where the data are read from or written to. Depending on
-            // where the data must be sent to or received from, different kind of stream are used.
-            OutputStream outSocket = socket.getOutputStream();
-            DataOutputStream out = new DataOutputStream(outSocket);
-            InputStream inFile = new FileInputStream(encryptedFile);
-            DataInputStream inSocket = new DataInputStream(socket.getInputStream());
+            for(int i = 0; i < numberOfFiles; i++){
+                // This is an example to help you create your request
+                CryptoUtils.encryptFile(keyGenerated, inputFiles[i], encryptedFiles[i]);
+                System.out.println("Encrypted file length: " + encryptedFiles[i].length());
+
+                // For any I/O operations, a stream is needed where the data are read from or written to. Depending on
+                // where the data must be sent to or received from, different kind of stream are used.
+                OutputStream outSocket = socket.getOutputStream();
+                DataOutputStream out = new DataOutputStream(outSocket);
+                InputStream inFile = new FileInputStream(encryptedFiles[i]);
+                DataInputStream inSocket = new DataInputStream(socket.getInputStream());
 
 
-            // SEND THE PROCESSING INFORMATION AND FILE
-            byte[] hashPwd = hashSHA1(password);
-            int pwdLength = 4;
-            long fileLength = encryptedFile.length();
-            sendRequest(out, hashPwd, pwdLength, fileLength);
-            out.flush();
+                // SEND THE PROCESSING INFORMATION AND FILE
+                byte[] hashPwd = hashSHA1(password);
+                int pwdLength = 4;
+                long fileLength = encryptedFiles[i].length();
+                sendRequest(out, hashPwd, pwdLength, fileLength);
+                out.flush();
 
-            FileManagement.sendFile(inFile, out);
-            /*
-            int readCount;
-            byte[] buffer = new byte[64];
-            //read from the file and send it in the socket
-            while ((readCount = inFile.read(buffer)) > 0){
-                out.write(buffer, 0, readCount);
-            }*/
+                FileManagement.sendFile(inFile, out);
+                /*
+                int readCount;
+                byte[] buffer = new byte[64];
+                //read from the file and send it in the socket
+                while ((readCount = inFile.read(buffer)) > 0){
+                    out.write(buffer, 0, readCount);
+                }*/
 
-            // GET THE RESPONSE FROM THE SERVER
-            OutputStream outFile = new FileOutputStream(decryptedClient);
-            long fileLengthServer = inSocket.readLong();
-            System.out.println("Length from the server: "+ fileLengthServer);
-            FileManagement.receiveFile(inSocket, outFile, fileLengthServer);
+                // GET THE RESPONSE FROM THE SERVER
+                OutputStream outFile = new FileOutputStream(decryptedClients[i]);
+                long fileLengthServer = inSocket.readLong();
+                System.out.println("Length from the server: "+ fileLengthServer);
+                FileManagement.receiveFile(inSocket, outFile, fileLengthServer);
 
-            /*
-            int readFromSocket = 0;
-            int byteRead;
-            byte[] readBuffer = new byte[64];
-            while(readFromSocket < fileLengthServer){
-                byteRead = inSocket.read(readBuffer);
-                readFromSocket += byteRead;
-                outFile.write(readBuffer, 0, byteRead);
-            }*/
-
-            out.close();
-            outSocket.close();
-            outFile.close();
-            inFile.close();
-            inSocket.close();
+                /*
+                int readFromSocket = 0;
+                int byteRead;
+                byte[] readBuffer = new byte[64];
+                while(readFromSocket < fileLengthServer){
+                    byteRead = inSocket.read(readBuffer);
+                    readFromSocket += byteRead;
+                    outFile.write(readBuffer, 0, byteRead);
+                }*/
+                out.close();
+                outSocket.close();
+                outFile.close();
+                inFile.close();
+                inSocket.close();
+            } // Fin de la boucle for?
             socket.close();
 
         } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidAlgorithmParameterException |
