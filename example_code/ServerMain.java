@@ -17,7 +17,7 @@ import java.security.InvalidKeyException; // This is the exception for invalid K
 
 public class ServerMain {
 
-    private static int MAX_T = 3; // nombre maximal de threads
+    private static int MAX_T = 1; // nombre maximal de threads
 
     /**
      * @param in Stream from which to read the request
@@ -39,17 +39,13 @@ public class ServerMain {
 
         ExecutorService pool = Executors.newFixedThreadPool(MAX_T);
 
-        File decryptedFile = new File("test_file-decrypted-server.pdf");
-        File networkFile = new File("temp-server.pdf");
-
         ServerSocket ss = new ServerSocket(3333);
         System.out.println("Waiting connection");
 
         while(!ss.isClosed()){ // C'EST TOUJOURS VRAI CA, CE SERA A CHANGER (mais je sais pas trop comment voir s'il reste des connections en attente ou non, ptet betement while(true) ?)
             Socket socket = ss.accept();
-            System.out.println("Connection from: " + socket);
-
-            Runnable processor = new ClientProcessor(networkFile, decryptedFile, socket);
+            System.out.println("Connection from: " + socket + "\n ID : "  + socket.getPort());
+            Runnable processor = new ClientProcessor(socket, socket.getPort());
             pool.execute(processor);
         }
         ss.close();
