@@ -40,20 +40,21 @@ public class Main {
 
     public static void main(String[] args) {
         try{
+
+            // Creating socket to connect to server (in this example it runs on the localhost on port 3333)
+            Socket socket = new Socket("localhost", 3333);
+            int portNb = socket.getPort();
+
             String password = "test";
             SecretKey keyGenerated = CryptoUtils.getKeyFromPassword(password);
 
             File inputFile = new File("test_file.pdf");
-            File encryptedFile = new File("test_file-encrypted-client.pdf");
-            File decryptedClient = new File("test_file-decrypted-client.pdf");
+            File encryptedFile = new File("test_file-encrypted-client" + portNb + ".pdf");
+            File decryptedClient = new File("test_file-decrypted-client" + portNb + ".pdf");
 
             // This is an example to help you create your request
             CryptoUtils.encryptFile(keyGenerated, inputFile, encryptedFile);
             System.out.println("Encrypted file length: " + encryptedFile.length());
-
-
-            // Creating socket to connect to server (in this example it runs on the localhost on port 3333)
-            Socket socket = new Socket("localhost", 3333);
 
             // For any I/O operations, a stream is needed where the data are read from or written to. Depending on
             // where the data must be sent to or received from, different kind of stream are used.
