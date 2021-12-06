@@ -5,14 +5,12 @@ import java.security.InvalidKeyException; // This is the exception for invalid K
 
 public class ClientProcessor implements Runnable{
 
-    private File networkFile;
-    private File decryptedFile;
     private Socket socket;
+    private int portNb;
 
-    public ClientProcessor(File networkFile, File decryptedFile, Socket socket){
-        this.networkFile = networkFile;
-        this.decryptedFile = decryptedFile;
+    public ClientProcessor(Socket socket, int portNb){
         this.socket = socket;
+        this.portNb = portNb;
     }
 
     /**
@@ -39,6 +37,10 @@ public class ClientProcessor implements Runnable{
             //Avec le même mdp. Donc mettre le bon pw dans un final?
 
             //Faire une fonction c'est peut etre pas nécessaire sauf pour le mot de passe
+
+            File decryptedFile = new File("test_file-decrypted-server" + portNb + ".pdf");
+            File networkFile = new File("temp-server" + portNb + ".pdf");
+
             InputStream inputStream = socket.getInputStream();
             DataInputStream dataInputStream = new DataInputStream(inputStream);
             // Stream to write response to socket
