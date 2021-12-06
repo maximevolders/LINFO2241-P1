@@ -78,7 +78,6 @@ public class Main {
 
             // SEND THE PROCESSING INFORMATION AND FILE
             byte[] hashPwd = hashSHA1(password);
-            int pwdLength = 4;
             long fileLength = encryptedFile.length();
             sendRequest(out, hashPwd, pwdLength, fileLength);
             out.flush();
