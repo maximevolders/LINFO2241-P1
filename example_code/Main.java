@@ -9,6 +9,7 @@ import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Random;
 
 
 
@@ -40,17 +41,28 @@ public class Main {
 
     public static void main(String[] args) {
         try{
-
             // Creating socket to connect to server (in this example it runs on the localhost on port 3333)
-            Socket socket = new Socket("localhost", 3333);
+            Socket socket = new Socket("192.168.1.24", 3333);
             int portNb = socket.getPort();
 
-            String password = "test";
+            int pwdLength = 4;
+            
+            Random rand = new Random();
+            String password = "";
+            for(int i = 0 ; i < pwdLength ; i++){
+                char c = (char)(rand.nextInt(26) + 97);
+                password += c;
+                System.out.print(c+" ");
+            }
+            System.out.println("\nMot de passe: " + password);
+
+            password = "test";
+
             SecretKey keyGenerated = CryptoUtils.getKeyFromPassword(password);
 
             File inputFile = new File("test_file.pdf");
-            File encryptedFile = new File("test_file-encrypted-client" + portNb + ".pdf");
-            File decryptedClient = new File("test_file-decrypted-client" + portNb + ".pdf");
+            File encryptedFile = new File("test_file" + portNb + ".pdf");
+            File decryptedClient = new File("test_file" + portNb + ".pdf");
 
             // This is an example to help you create your request
             CryptoUtils.encryptFile(keyGenerated, inputFile, encryptedFile);
