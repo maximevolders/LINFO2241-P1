@@ -45,7 +45,7 @@ public class Main {
             Socket socket = new Socket("192.168.1.24", 3333);
             int portNb = socket.getPort();
 
-            int pwdLength = 4;
+            int pwdLength = 2;
             
             Random rand = new Random();
             String password = "";
@@ -55,14 +55,12 @@ public class Main {
                 System.out.print(c+" ");
             }
             System.out.println("\nMot de passe: " + password);
-
-            password = "test";
-
+            password = "eq";
             SecretKey keyGenerated = CryptoUtils.getKeyFromPassword(password);
 
             File inputFile = new File("test_file.pdf");
-            File encryptedFile = new File("test_file" + portNb + ".pdf");
-            File decryptedClient = new File("test_file" + portNb + ".pdf");
+            File encryptedFile = new File("test_file_encryptedClient" + portNb + ".pdf");
+            File decryptedClient = new File("test_file_decryptedClient" + portNb + ".pdf");
 
             // This is an example to help you create your request
             CryptoUtils.encryptFile(keyGenerated, inputFile, encryptedFile);
