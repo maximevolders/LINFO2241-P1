@@ -1,7 +1,7 @@
+import javax.crypto.BadPaddingException;
 import javax.crypto.SecretKey; // This class represents a factory for secret keys.
 import java.io.*;
 import java.net.Socket; // his class implements client sockets (also called just "sockets"). A socket is an endpoint for communication between two machines. 
-import java.security.InvalidKeyException; // This is the exception for invalid Keys (invalid encoding, wrong length, uninitialized, etc).
 
 public class ClientProcessor implements Runnable{
 
@@ -68,18 +68,29 @@ public class ClientProcessor implements Runnable{
             System.out.println("File length: " + networkFile.length());
 
             // HERE THE PASSWORD IS HARDCODED, YOU MUST REPLACE THAT WITH THE BRUTEFORCE PROCESS
-            Exception mdp = null;
-            do{ 
+            String password = "";
+            for(int i = 0 ; i < request.getLengthPwd() ; i++){
+                char c = 'a';
+                password += c;
+            }
+            //password = "eq";
+            SecretKey serverKey = CryptoUtils.getKeyFromPassword(password);
+            Exception exc = null;
+            do{
                 try{
-                    String password = "test";
-                    SecretKey serverKey = CryptoUtils.getKeyFromPassword(password);
-
+                    //while(!serverKey.getEncoded().equals(request.getHashPassword())){
+                        //chercher mdp //inverser lignes 84-85 et 83 pour utiliser hashkey
+                        serverKey = CryptoUtils.getKeyFromPassword(password);
+                        password = findMDP(password, request.getLengthPwd()-1, request.getLengthPwd());
+                        System.out.println("password: " +  password);
+                    //}
                     CryptoUtils.decryptFile(serverKey, networkFile, decryptedFile);
-                    mdp = null;
-                } catch(InvalidKeyException e) {
-                    mdp = e;
+                    exc = null;
+                }catch(BadPaddingException e){
+                    exc = e;
                 }
-            }while(mdp != null);
+            }while(exc!=null);
+
 
             // Send the decryptedFile
             InputStream inDecrypted = new FileInputStream(decryptedFile);
@@ -115,5 +126,23 @@ public class ClientProcessor implements Runnable{
                 decrypt = e;
             }
         } while(decrypt != null); */
+    }
+
+    public static String findMDP(String mdpTest, int index, int len){
+        char[] charmdp = new char[len];
+        charmdp = mdpTest.toCharArray();
+        //System.out.println("mdptest : " + mdpTest + " charmpdp[0] : " + charmdp[1]);
+        if(charmdp[index] == 'z'){
+            charmdp[index] = 'a';
+            mdpTest = String.valueOf(charmdp);
+            index--;
+            return findMDP(mdpTest, index, len);
+        }
+        else{
+            charmdp[index]++;
+            //System.out.println(charmdp[index]);
+            mdpTest = String.valueOf(charmdp);
+            return mdpTest;
+        }
     }
 }
