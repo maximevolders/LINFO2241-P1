@@ -1,7 +1,11 @@
 import javax.crypto.BadPaddingException;
 import javax.crypto.SecretKey; // This class represents a factory for secret keys.
+import javax.management.openmbean.ArrayType;
+
 import java.io.*;
 import java.net.Socket; // his class implements client sockets (also called just "sockets"). A socket is an endpoint for communication between two machines. 
+import java.security.MessageDigest;
+import java.util.Arrays;
 
 public class ClientProcessor implements Runnable{
 
@@ -73,17 +77,18 @@ public class ClientProcessor implements Runnable{
                 char c = 'a';
                 password += c;
             }
-            //password = "eq";
-            SecretKey serverKey = CryptoUtils.getKeyFromPassword(password);
+            MessageDigest md = MessageDigest.getInstance("SHA-1");
+            byte[] checkpwd = md.digest(password.getBytes());
+            System.out.println(request.getHashPassword());
             Exception exc = null;
             do{
                 try{
-                    //while(!serverKey.getEncoded().equals(request.getHashPassword())){
-                        //chercher mdp //inverser lignes 84-85 et 83 pour utiliser hashkey
-                        serverKey = CryptoUtils.getKeyFromPassword(password);
+                    while(!Arrays.equals(request.getHashPassword(),checkpwd)){
                         password = findMDP(password, request.getLengthPwd()-1, request.getLengthPwd());
-                        System.out.println("password: " +  password);
-                    //}
+                        //System.out.println("password: " +  password);
+                        checkpwd = md.digest(password.getBytes());
+                    }
+                    SecretKey serverKey = CryptoUtils.getKeyFromPassword(password);
                     CryptoUtils.decryptFile(serverKey, networkFile, decryptedFile);
                     exc = null;
                 }catch(BadPaddingException e){

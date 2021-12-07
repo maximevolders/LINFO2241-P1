@@ -42,7 +42,7 @@ public class Main {
     public static void main(String[] args) {
         try{
             // Creating socket to connect to server (in this example it runs on the localhost on port 3333)
-            Socket socket = new Socket("192.168.1.24", 3333);
+            Socket socket = new Socket("localhost", 3333);
             int portNb = socket.getPort();
 
             int pwdLength = 2;
@@ -52,10 +52,9 @@ public class Main {
             for(int i = 0 ; i < pwdLength ; i++){
                 char c = (char)(rand.nextInt(26) + 97);
                 password += c;
-                System.out.print(c+" ");
             }
             System.out.println("\nMot de passe: " + password);
-            password = "eq";
+
             SecretKey keyGenerated = CryptoUtils.getKeyFromPassword(password);
 
             File inputFile = new File("test_file.pdf");
