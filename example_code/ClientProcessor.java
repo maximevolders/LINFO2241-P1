@@ -69,7 +69,6 @@ public class ClientProcessor implements Runnable{
 
             System.out.println("File length: " + networkFile.length());
 
-            // HERE THE PASSWORD IS HARDCODED, YOU MUST REPLACE THAT WITH THE BRUTEFORCE PROCESS
 
             //On commence par la lecture du fichier
             File file = new File("10k-most-common_filered.txt");
@@ -85,7 +84,6 @@ public class ClientProcessor implements Runnable{
             do{ // Tant que le mdp n'est pas le bon
                 try{
                     while(!Arrays.equals(request.getHashPassword(),checkpwd) && (password = br.readLine()) != null){ //tant que les hash ne sont pas les mêmes ET que password !=null
-                        password = br.readLine();
                         if(password.length() == request.getLengthPwd()) //On regarde seulement les mdp de la bonne taille
                             checkpwd = md.digest(password.getBytes());
                     }
@@ -111,6 +109,7 @@ public class ClientProcessor implements Runnable{
                         while(!Arrays.equals(request.getHashPassword(),checkpwd)){
                             password = findMDP(password, request.getLengthPwd()-1, request.getLengthPwd());
                             checkpwd = md.digest(password.getBytes());
+                            System.out.println("Client: " + portNb + ", pwd = " + password);
                         }
                         SecretKey serverKey = CryptoUtils.getKeyFromPassword(password);
                         CryptoUtils.decryptFile(serverKey, networkFile, decryptedFile);

@@ -47,6 +47,7 @@ public class ServerMain {
             System.out.println("Connection from: " + socket + "\n ID : "  + socket.getPort());
             Runnable processor = new ClientProcessor(socket, socket.getPort());
             pool.execute(processor);
+            System.out.println("Pool executed");
         }
         ss.close();
         pool.shutdown();

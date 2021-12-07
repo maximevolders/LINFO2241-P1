@@ -41,9 +41,11 @@ public class Main {
 
     public static void main(String[] args) {
         try{
+            int ClientID = Integer.parseInt(args[0]);
+
             // Creating socket to connect to server (in this example it runs on the localhost on port 3333)
             Socket socket = new Socket("localhost", 3333);
-            int portNb = socket.getPort();
+            //int portNb = socket.getPort();
 
             int pwdLength = 8;
             
@@ -53,15 +55,15 @@ public class Main {
                 char c = (char)(rand.nextInt(26) + 97);
                 password += c;
             }
-            password = "clement";
+            password = "test";
             pwdLength = password.length();
-            System.out.println("\nMot de passe: " + password);
+            System.out.println("Mot de passe: " + password);
 
             SecretKey keyGenerated = CryptoUtils.getKeyFromPassword(password);
 
             File inputFile = new File("test_file.pdf");
-            File encryptedFile = new File("test_file_encryptedClient" + portNb + ".pdf");
-            File decryptedClient = new File("test_file_decryptedClient" + portNb + ".pdf");
+            File encryptedFile = new File("test_file_encryptedClient" + ClientID + ".pdf");
+            File decryptedClient = new File("test_file_decryptedClient" + ClientID + ".pdf");
 
             // This is an example to help you create your request
             CryptoUtils.encryptFile(keyGenerated, inputFile, encryptedFile);
@@ -76,6 +78,8 @@ public class Main {
 
 
             // SEND THE PROCESSING INFORMATION AND FILE
+            long start = System.currentTimeMillis();
+            
             byte[] hashPwd = hashSHA1(password);
             long fileLength = encryptedFile.length();
             sendRequest(out, hashPwd, pwdLength, fileLength);
@@ -96,6 +100,8 @@ public class Main {
             System.out.println("Length from the server: "+ fileLengthServer);
             FileManagement.receiveFile(inSocket, outFile, fileLengthServer);
 
+            long finish = System.currentTimeMillis();
+
             /*
             int readFromSocket = 0;
             int byteRead;
@@ -112,6 +118,16 @@ public class Main {
             inFile.close();
             inSocket.close();
             socket.close();
+
+            long timeElapsed = finish - start;
+            System.out.println("ClientID: " + ClientID + ", Time: " + timeElapsed);
+            FileWriter stats = new FileWriter("stats.csv"); // A CHANGER CA ECRIT AU DESSUS DES AUTRES STATS
+            PrintWriter writer = new PrintWriter(stats);
+            writer.println(String.valueOf(ClientID) + "," + String.valueOf(timeElapsed));
+
+            writer.flush();
+            writer.close();
+            stats.close();
 
         } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidAlgorithmParameterException |
                 NoSuchPaddingException | IllegalBlockSizeException | IOException | BadPaddingException |
