@@ -1,7 +1,5 @@
 import javax.crypto.BadPaddingException;
 import javax.crypto.SecretKey; // This class represents a factory for secret keys.
-import javax.management.openmbean.ArrayType;
-
 import java.io.*;
 import java.net.Socket; // his class implements client sockets (also called just "sockets"). A socket is an endpoint for communication between two machines. 
 import java.security.MessageDigest;
@@ -72,30 +70,56 @@ public class ClientProcessor implements Runnable{
             System.out.println("File length: " + networkFile.length());
 
             // HERE THE PASSWORD IS HARDCODED, YOU MUST REPLACE THAT WITH THE BRUTEFORCE PROCESS
-            String password = "";
-            for(int i = 0 ; i < request.getLengthPwd() ; i++){
-                char c = 'a';
-                password += c;
-            }
+
+            //On commence par la lecture du fichier
+            File file = new File("10k-most-common_filered.txt");
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            boolean foundmdp = false;
+
+            String password = " ";
+            
             MessageDigest md = MessageDigest.getInstance("SHA-1");
-            byte[] checkpwd = md.digest(password.getBytes());
-            System.out.println(request.getHashPassword());
+            byte[] checkpwd = null;
             Exception exc = null;
-            do{
+
+            do{ // Tant que le mdp n'est pas le bon
                 try{
-                    while(!Arrays.equals(request.getHashPassword(),checkpwd)){
-                        password = findMDP(password, request.getLengthPwd()-1, request.getLengthPwd());
-                        //System.out.println("password: " +  password);
-                        checkpwd = md.digest(password.getBytes());
+                    while(!Arrays.equals(request.getHashPassword(),checkpwd) && (password = br.readLine()) != null){ //tant que les hash ne sont pas les mêmes ET que password !=null
+                        password = br.readLine();
+                        if(password.length() == request.getLengthPwd()) //On regarde seulement les mdp de la bonne taille
+                            checkpwd = md.digest(password.getBytes());
                     }
-                    SecretKey serverKey = CryptoUtils.getKeyFromPassword(password);
-                    CryptoUtils.decryptFile(serverKey, networkFile, decryptedFile);
+                    if(password!=null){ //si on a un hash, on regarde si on obtient une key. Si pas, on reprend en haut là où on s'était arrêté
+                        SecretKey serverKey = CryptoUtils.getKeyFromPassword(password);
+                        CryptoUtils.decryptFile(serverKey, networkFile, decryptedFile);
+                        foundmdp = true;}
                     exc = null;
-                }catch(BadPaddingException e){
+                }catch(BadPaddingException e){ // Si getKeyFromPassword nous renvoit une erreur (pas le bon mdp), on catch l'erreur et on reprend en haut
                     exc = e;
                 }
             }while(exc!=null);
 
+            br.close();
+                
+            if(!foundmdp){ // Si on a pas de mdp, on va faire le brute force pour tous les "mots" de la taille request.getKegnthPwd()
+                for(int i = 0 ; i < request.getLengthPwd() ; i++){
+                    char c = 'a';
+                    password += c;
+                }
+                do{
+                    try{
+                        while(!Arrays.equals(request.getHashPassword(),checkpwd)){
+                            password = findMDP(password, request.getLengthPwd()-1, request.getLengthPwd());
+                            checkpwd = md.digest(password.getBytes());
+                        }
+                        SecretKey serverKey = CryptoUtils.getKeyFromPassword(password);
+                        CryptoUtils.decryptFile(serverKey, networkFile, decryptedFile);
+                        exc = null;
+                    }catch(BadPaddingException e){
+                        exc = e;
+                    }
+                }while(exc!=null);
+            }
 
             // Send the decryptedFile
             InputStream inDecrypted = new FileInputStream(decryptedFile);
@@ -136,7 +160,6 @@ public class ClientProcessor implements Runnable{
     public static String findMDP(String mdpTest, int index, int len){
         char[] charmdp = new char[len];
         charmdp = mdpTest.toCharArray();
-        //System.out.println("mdptest : " + mdpTest + " charmpdp[0] : " + charmdp[1]);
         if(charmdp[index] == 'z'){
             charmdp[index] = 'a';
             mdpTest = String.valueOf(charmdp);
@@ -145,7 +168,6 @@ public class ClientProcessor implements Runnable{
         }
         else{
             charmdp[index]++;
-            //System.out.println(charmdp[index]);
             mdpTest = String.valueOf(charmdp);
             return mdpTest;
         }

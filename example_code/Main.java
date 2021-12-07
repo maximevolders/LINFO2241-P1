@@ -45,7 +45,7 @@ public class Main {
             Socket socket = new Socket("localhost", 3333);
             int portNb = socket.getPort();
 
-            int pwdLength = 2;
+            int pwdLength = 8;
             
             Random rand = new Random();
             String password = "";
@@ -53,6 +53,8 @@ public class Main {
                 char c = (char)(rand.nextInt(26) + 97);
                 password += c;
             }
+            password = "clement";
+            pwdLength = password.length();
             System.out.println("\nMot de passe: " + password);
 
             SecretKey keyGenerated = CryptoUtils.getKeyFromPassword(password);
