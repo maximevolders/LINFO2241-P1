@@ -133,7 +133,7 @@ public class Main {
             long timeElapsed = finish - start;
             System.out.println("ClientID: " + ClientID + ", Time: " + timeElapsed);
 
-            FileWriter stats = new FileWriter("stats.csv"); // A CHANGER CA ECRIT AU DESSUS DES AUTRES STATS
+            FileWriter stats = new FileWriter("statsClient_" + ClientID + ".csv");
             PrintWriter writer = new PrintWriter(stats);
             writer.println(String.valueOf(ClientID) + "," + String.valueOf(timeElapsed));
             writer.flush();

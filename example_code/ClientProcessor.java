@@ -97,9 +97,9 @@ public class ClientProcessor implements Runnable{
                 }
             }while(exc!=null);
 
-            br.close();
-                
+            br.close();  
             if(!foundmdp){ // Si on a pas de mdp, on va faire le brute force pour tous les "mots" de la taille request.getKegnthPwd()
+                password = "";  
                 for(int i = 0 ; i < request.getLengthPwd() ; i++){
                     char c = 'a';
                     password += c;
