@@ -42,20 +42,30 @@ public class Main {
     public static void main(String[] args) {
         try{
             int ClientID = Integer.parseInt(args[0]);
+            boolean takeRandomPwd = true;
 
             // Creating socket to connect to server (in this example it runs on the localhost on port 3333)
             Socket socket = new Socket("localhost", 3333);
             //int portNb = socket.getPort();
 
-            int pwdLength = 8;
-            
+            int pwdLength = 3;
             Random rand = new Random();
             String password = "";
-            for(int i = 0 ; i < pwdLength ; i++){
-                char c = (char)(rand.nextInt(26) + 97);
-                password += c;
+
+            if(takeRandomPwd){
+                for(int i = 0 ; i < pwdLength ; i++){
+                    char c = (char)(rand.nextInt(26) + 97);
+                    password += c;
+                }
+            } else {
+                File mdp10k = new File("10k-most-common_filered.txt");
+                BufferedReader br = new BufferedReader(new FileReader(mdp10k));
+                for(int i = 0 ; i < rand.nextInt(8200); i++){
+                    password = br.readLine();
+                }
+                br.close();
             }
-            password = "test";
+
             pwdLength = password.length();
             System.out.println("Mot de passe: " + password);
 
@@ -121,10 +131,10 @@ public class Main {
 
             long timeElapsed = finish - start;
             System.out.println("ClientID: " + ClientID + ", Time: " + timeElapsed);
+
             FileWriter stats = new FileWriter("stats.csv"); // A CHANGER CA ECRIT AU DESSUS DES AUTRES STATS
             PrintWriter writer = new PrintWriter(stats);
             writer.println(String.valueOf(ClientID) + "," + String.valueOf(timeElapsed));
-
             writer.flush();
             writer.close();
             stats.close();
