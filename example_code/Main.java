@@ -60,7 +60,8 @@ public class Main {
             } else {
                 File mdp10k = new File("10k-most-common_filered.txt");
                 BufferedReader br = new BufferedReader(new FileReader(mdp10k));
-                for(int i = 0 ; i < rand.nextInt(8200); i++){
+                int lineNumber = rand.nextInt(8200);
+                for(int i = 0 ; i < lineNumber; i++){
                     password = br.readLine();
                 }
                 br.close();
