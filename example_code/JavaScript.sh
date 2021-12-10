@@ -1,20 +1,17 @@
 #!/bin/bash
 clear
-rm stats.csv 2> /dev/null
 
-echo "---------- Testing with $1 Clients ----------"
-
-for (( j=1; j<=$1; j++ ))
+for i in {2,5,10,25,50,75,100}
 do
-	echo "------------- Client $j started -------------"
-	sleep $(( RANDOM % 3 ))
-	java Main $j &
+	echo "------ Starting test with $i clients -------"
+	for (( j=1; j<=$i; j++ ))
+	do
+		sleep $(( RANDOM % 3 ))
+		java Main $j &
+	done
+	wait
+
+	echo "--------------- Grouping data ---------------"
+	python3 groupData.py $i "mesures_$(($j-1))_clients.csv"
 done
-
-wait
-
-echo "--------- All clients are finished! ---------"
-
-echo "------------ Generating graphs.. ------------"
-python3 groupData.py $1 2> /dev/null
-echo "--------------- Graphs ready! ---------------"
+echo "-------------- Tests finished! --------------"
