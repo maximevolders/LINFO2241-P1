@@ -109,7 +109,6 @@ public class ClientProcessor implements Runnable{
                         while(!Arrays.equals(request.getHashPassword(),checkpwd)){
                             password = findMDP(password, request.getLengthPwd()-1, request.getLengthPwd());
                             checkpwd = md.digest(password.getBytes());
-                            System.out.println("Client: " + portNb + ", pwd = " + password);
                         }
                         SecretKey serverKey = CryptoUtils.getKeyFromPassword(password);
                         CryptoUtils.decryptFile(serverKey, networkFile, decryptedFile);

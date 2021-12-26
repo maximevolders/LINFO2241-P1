@@ -17,7 +17,7 @@ import java.security.InvalidKeyException; // This is the exception for invalid K
 
 public class ServerMain {
 
-    private static int MAX_T = 1; // nombre maximal de threads
+    private static int MAX_T = 4; // nombre maximal de threads
 
     /**
      * @param in Stream from which to read the request

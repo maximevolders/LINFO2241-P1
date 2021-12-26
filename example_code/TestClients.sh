@@ -1,12 +1,18 @@
 #!/bin/bash
 clear
 
+lambda=$(echo "-2")
+
 for i in {2,5,10,25,50,75,100}
 do
 	echo "------ Starting test with $i clients -------"
 	for (( j=1; j<=$i; j++ ))
 	do
-		sleep $(( RANDOM % 3 ))
+		rand=$(echo "scale=8; $RANDOM/32768" | bc)
+		log=$(echo "l(1-$rand)" | bc -l)
+		wait=$(echo "scale=8; $log/$lambda" | bc)
+		sleep $wait
+		
 		java Main $j &
 	done
 	wait
