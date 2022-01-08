@@ -42,7 +42,7 @@ public class Main {
     public static void main(String[] args) {
         try{
             int ClientID = Integer.parseInt(args[0]);
-            boolean takeRandomPwd = true;
+            boolean takeRandomPwd = false;
 
             // Creating socket to connect to server (in this example it runs on the localhost on port 3333)
             Socket socket = new Socket("192.168.1.24", 3333);

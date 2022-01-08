@@ -3,8 +3,9 @@ clear
 
 lambda=$(echo "-0.5")
 
-for i in {2,5,10,25,50,75,100}
-do
+#for i in {2,5,10,25,50,75,100}
+#do
+i=$(echo "100")
 	echo "------ Starting test with $i clients -------"
 	for (( j=1; j<=$i; j++ ))
 	do
@@ -19,5 +20,5 @@ do
 
 	echo "--------------- Grouping data ---------------"
 	python3 groupData.py $i "mesures_$(($j-1))_clients.csv"
-done
+#done
 echo "-------------- Tests finished! --------------"
