@@ -45,8 +45,9 @@ public class Main {
             boolean takeRandomPwd = false;
 
             // Creating socket to connect to server (in this example it runs on the localhost on port 3333)
-            Socket socket = new Socket("192.168.1.62", 3333);
-            //int portNb = socket.getPort();
+
+            Socket socket = new Socket("192.168.1.24", 3333);
+
 
             int pwdLength = 3;
             Random rand = new Random();
