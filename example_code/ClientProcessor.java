@@ -32,13 +32,8 @@ public class ClientProcessor implements Runnable{
     }
 
     public void run() {
-        try{ // GROS TRY CATCH A ENLEVER, JE SAIS JUSTE PAS COMMENT GERER L'ERREUR
+        try{
             // Stream to read request from socket
-            //On devrait peut etre faire une fonction de tout ça, et le mettre
-            //Dans une boucle while pour pouvoir recevoir x fichiers, toujours
-            //Avec le même mdp. Donc mettre le bon pw dans un final?
-
-            //Faire une fonction c'est peut etre pas nécessaire sauf pour le mot de passe
 
             File decryptedFile = new File("test_file-decrypted-server" + portNb + ".pdf");
             File networkFile = new File("temp-server" + portNb + ".pdf");
@@ -56,21 +51,11 @@ public class ClientProcessor implements Runnable{
             long fileLength = request.getLengthFile();
 
             FileManagement.receiveFile(inputStream, outFile, fileLength);
-            /*
-            int readFromFile = 0;
-            int bytesRead = 0;
-            byte[] readBuffer = new byte[64];
-            System.out.println("[Server] File length: "+ fileLength);
-            while((readFromFile < fileLength)){
-                bytesRead = inputStream.read(readBuffer);
-                readFromFile += bytesRead;
-                outFile.write(readBuffer, 0, bytesRead);
-            }*/
 
             System.out.println("File length: " + networkFile.length());
 
 
-            //On commence par la lecture du fichier
+            //We start reading the file with 10k passwords
             File file = new File("10k-most-common_filered.txt");
             BufferedReader br = new BufferedReader(new FileReader(file));
             boolean foundmdp = false;
@@ -81,24 +66,24 @@ public class ClientProcessor implements Runnable{
             byte[] checkpwd = null;
             Exception exc = null;
 
-            do{ // Tant que le mdp n'est pas le bon
+            do{ // As long as the guessed password isn't the correct one
                 try{
-                    while(!Arrays.equals(request.getHashPassword(),checkpwd) && (password = br.readLine()) != null){ //tant que les hash ne sont pas les mêmes ET que password !=null
-                        if(password.length() == request.getLengthPwd()) //On regarde seulement les mdp de la bonne taille
+                    while(!Arrays.equals(request.getHashPassword(),checkpwd) && (password = br.readLine()) != null){ // as long as the hash aren't the same AND password !=null
+                        if(password.length() == request.getLengthPwd()) //Check only password of the right length
                             checkpwd = md.digest(password.getBytes());
                     }
-                    if(password!=null){ //si on a un hash, on regarde si on obtient une key. Si pas, on reprend en haut là où on s'était arrêté
+                    if(password!=null){ //If a hash is found, check if we get a key
                         SecretKey serverKey = CryptoUtils.getKeyFromPassword(password);
                         CryptoUtils.decryptFile(serverKey, networkFile, decryptedFile);
                         foundmdp = true;}
                     exc = null;
-                }catch(BadPaddingException e){ // Si getKeyFromPassword nous renvoit une erreur (pas le bon mdp), on catch l'erreur et on reprend en haut
+                }catch(BadPaddingException e){ // if getKeyFromPassword sends back an error, we catch it and try the next password
                     exc = e;
                 }
             }while(exc!=null);
 
             br.close();  
-            if(!foundmdp){ // Si on a pas de mdp, on va faire le brute force pour tous les "mots" de la taille request.getKegnthPwd()
+            if(!foundmdp){ // If we couldn't find the password, we try brute force
                 password = "";  
                 for(int i = 0 ; i < request.getLengthPwd() ; i++){
                     char c = 'a';
@@ -124,13 +109,7 @@ public class ClientProcessor implements Runnable{
             outSocket.writeLong(decryptedFile.length());
             outSocket.flush();
             FileManagement.sendFile(inDecrypted, outSocket);
-            /*
-            int readCount;
-            byte[] buffer = new byte[64];
-            //read from the file and send it in the socket
-            while ((readCount = inDecrypted.read(buffer)) > 0){
-                outSocket.write(buffer, 0, readCount);
-            }*/
+            
 
             dataInputStream.close();
             inputStream.close();
@@ -138,21 +117,9 @@ public class ClientProcessor implements Runnable{
             outFile.close();
             socket.close();
         } catch(Exception e) {
-            System.out.println("Y a des erreurs de type: "+e.toString());
+            System.out.println("There are errors of type: "+e.toString());
         }
-/*        Exception decrypt;
-        do{
-            try{
-            String password = this.guessPwd();
-            SecretKey serverKey = CryptoUtils.getKeyFromPassword(password);
 
-            CryptoUtils.decryptFile(serverKey, networkFile, decryptedFile);
-            decrypt = null;
-            }
-            catch(Exception e){
-                decrypt = e;
-            }
-        } while(decrypt != null); */
     }
 
     public static String findMDP(String mdpTest, int index, int len){

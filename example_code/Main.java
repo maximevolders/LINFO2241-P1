@@ -45,10 +45,10 @@ public class Main {
             boolean takeRandomPwd = false;
 
             // Creating socket to connect to server (in this example it runs on the localhost on port 3333)
-            Socket socket = new Socket("localhost", 3333);
+            Socket socket = new Socket("192.168.1.62", 3333);
             //int portNb = socket.getPort();
 
-            int pwdLength = 2;
+            int pwdLength = 3;
             Random rand = new Random();
             String password = "";
 
@@ -97,14 +97,7 @@ public class Main {
             out.flush();
 
             FileManagement.sendFile(inFile, out);
-            /*
-            int readCount;
-            byte[] buffer = new byte[64];
-            //read from the file and send it in the socket
-            while ((readCount = inFile.read(buffer)) > 0){
-                out.write(buffer, 0, readCount);
-            }*/
-
+            
             // GET THE RESPONSE FROM THE SERVER
             OutputStream outFile = new FileOutputStream(decryptedClient);
             long fileLengthServer = inSocket.readLong();
@@ -112,16 +105,6 @@ public class Main {
             FileManagement.receiveFile(inSocket, outFile, fileLengthServer);
 
             long finish = System.currentTimeMillis();
-
-            /*
-            int readFromSocket = 0;
-            int byteRead;
-            byte[] readBuffer = new byte[64];
-            while(readFromSocket < fileLengthServer){
-                byteRead = inSocket.read(readBuffer);
-                readFromSocket += byteRead;
-                outFile.write(readBuffer, 0, byteRead);
-            }*/
 
             out.close();
             outSocket.close();

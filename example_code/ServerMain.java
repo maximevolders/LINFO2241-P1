@@ -17,23 +17,13 @@ import java.security.InvalidKeyException; // This is the exception for invalid K
 
 public class ServerMain {
 
-    private static int MAX_T = 4; // nombre maximal de threads
+    private static int MAX_T = 12; // nombre maximal de threads
 
     /**
      * @param in Stream from which to read the request
      * @return Request with information required by the server to process encrypted file
-     */ /*
-    public static Request readRequest(DataInputStream in) throws IOException {
-        byte [] hashPwd = new byte[20];
-        int count = in.read(hashPwd,0, 20);
-        if (count < 0){
-            throw new IOException("Server could not read from the stream");
-        }
-        int pwdLength = in.readInt();
-        long fileLength = in.readLong();
-
-        return new Request(hashPwd, pwdLength, fileLength);
-    } */
+     */
+    
 
     public static void main(String[] args) throws IOException {
 
@@ -42,7 +32,7 @@ public class ServerMain {
         ServerSocket ss = new ServerSocket(3333);
         System.out.println("Waiting connection");
 
-        while(!ss.isClosed()){ // C'EST TOUJOURS VRAI CA, CE SERA A CHANGER (mais je sais pas trop comment voir s'il reste des connections en attente ou non, ptet betement while(true) ?)
+        while(!ss.isClosed()){ // always true
             Socket socket = ss.accept();
             System.out.println("Connection from: " + socket + "\n ID : "  + socket.getPort());
             Runnable processor = new ClientProcessor(socket, socket.getPort());
